@@ -21,10 +21,16 @@ const Login = () => {
       withCredentials: true, // to send and receive cookies
     });
 
-    console.log('Response headers:', response.headers); // just to check cookies or other headers
 
     if (response.status === 200) {
       alert('Login successful!');
+      const {accessToken} =response.data;
+      if(accessToken){
+        localStorage.setItem("accessToken",accessToken)
+      }else{
+        console.log("Token Not Received");
+        
+      }
       // No localStorage usage anymore
 
       // Navigate to dashboard or protected route

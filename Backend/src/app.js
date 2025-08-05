@@ -8,7 +8,7 @@ import authRoute from './routes/UserRoutes.js';
 import cookieParser from 'cookie-parser';
 
 app.use(cors({
-    origin:"http://localhost:5173",
+    origin:"http://localhost:3000",
     credentials:true
 }));
 app.use(express.json());

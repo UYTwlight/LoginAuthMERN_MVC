@@ -2,6 +2,7 @@ import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import { generateAccessToken, generateRefreshToken } from "../token.js";
 dotenv.config();
 export const registerUser = async (req, res) => {
   try {
@@ -39,10 +40,11 @@ export const loginUser = async (req, res) => {
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid Password" });
     }
-    const token = jwt.sign({ userID: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
-    res.cookie("token", token, {
+
+    const accessToken = generateAccessToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
+
+    res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: false,
       sameSite: "Lax",
@@ -50,7 +52,7 @@ export const loginUser = async (req, res) => {
     });
     res.status(200).json({
       message: "Login Successfull",
-      token,
+      accessToken,
     });
   } catch (error) {
     res.status(500).json({ message: "Server error.", error });
@@ -59,35 +61,49 @@ export const loginUser = async (req, res) => {
 
 export const getUserDetails = async (req, res) => {
   try {
-    const token = req.cookies.token;
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(" ")[1];
     if (!token) {
-      return res.status(401).json({ message: "Token missing" });
+      return res.status(401).json({ message: "Access Token missing" });
     }
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.ACCESS_SECRET);
     console.log(decoded);
-    
-    const user = await User.findOne({_id:decoded.userID});
+
+    const user = await User.findOne({ _id: decoded.userId });
     if (!user) {
-      res.status(404).json({ message: "User Not Found" });
+      return res.status(404).json({ message: "User Not Found" });
     }
     res.status(200).json(user);
+  } catch (error) {
+    return res
+      .status(403)
+      .json({ message: "Invalid or expired access token", error });
+  }
+};
+export const refreshAccessToken = async (req, res) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken)
+      return res.status(401).json({ message: "Refresh token missing" });
+
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_SECRET);
+    const user = await User.findById(decoded.userId);
+
+    const newAccessToken = generateAccessToken(user._id);
+    res.status(200).json({ accessToken: newAccessToken });
+  } catch (error) {
+    return res
+      .status(403)
+      .json({ message: "Invalid or expired refresh token", error });
+  }
+};
+
+// LOGOUT
+export const logout = async (req, res) => {
+  try {
+    res.clearCookie("refreshToken");
+    res.status(200).json({ message: "Logout Successful" });
   } catch (error) {
     return res.status(500).json({ message: "Server error", error });
   }
 };
-
-export const logout=async(req,res)=>{
-    try {
-        res.cookie("token", "", {
-      httpOnly: true,
-      secure: false,
-      sameSite: "Lax",
-      expires:new Date(0),
-    });
-
-    res.status(200).json({message:"Logout Successfull"});
-    } catch (error) {
-            return res.status(500).json({ message: "Server error", error });
-
-    }
-}
