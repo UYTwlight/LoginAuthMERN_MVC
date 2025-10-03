@@ -29,7 +29,7 @@ const UserDetails = () => {
         setUser(res.data);
       } catch (error) {
         const status = error.response.status;
-        if (status == 401 || status == 403) {
+        if (status === 401 || status === 403) {
           try {
             console.log("Access Token Expxired");
             const refreshRes = await axios.get(

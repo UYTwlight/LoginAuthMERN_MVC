@@ -4,11 +4,6 @@ import Register from './Components/Auth/Register';
 import UserDetails from './Components/Auth/UserDetails';
 
 function App() {
-  const handleFilter = (e) => {
-    const value = e.target.value;
-    console.log('Search input:', value); // You can handle filtering logic here
-  };
-
   return (
     <Router>
       <div>
