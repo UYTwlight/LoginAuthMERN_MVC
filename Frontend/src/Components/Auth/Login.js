@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import styles from './Auth.module.css';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../utils/api';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -17,24 +17,35 @@ const Login = () => {
 
   const onSubmit = async (data) => {
   try {
-    const response = await axios.post('http://localhost:3001/api/auth/login', data, {
-      withCredentials: true, // to send and receive cookies
-    });
-
+    const response = await api.post('/auth/login', data);
 
     if (response.status === 200) {
-      alert('Login successful!');
-      const {accessToken} =response.data;
-      if(accessToken){
-        localStorage.setItem("accessToken",accessToken)
-      }else{
-        console.log("Token Not Received");
+      const { accessToken, role, user } = response.data;
+      
+      if (accessToken) {
+        // Store the token and user info
+        localStorage.setItem('accessToken', accessToken);
+        const userRole = role || user?.role || 'user';
+        localStorage.setItem('userRole', userRole);
+        localStorage.setItem('userName', user?.name || '');
+        localStorage.setItem('userEmail', user?.email || '');
         
+        // Initialize session time
+        localStorage.setItem('lastActivity', Date.now().toString());
+        
+        // Show role-specific message
+        const sessionInfo = userRole === 'admin' 
+          ? 'Bạn có thể sử dụng không giới hạn thời gian.'
+          : 'Phiên làm việc của bạn sẽ hết hạn sau 30 phút không hoạt động.';
+        
+        alert(`Đăng nhập thành công! Xin chào ${user?.name || 'User'}\n${sessionInfo}`);
+        
+        // Navigate to dashboard
+        navigate('/'); // This will now show the dashboard since we're authenticated
+      } else {
+        console.log("Token Not Received");
+        alert('Login failed: No access token received');
       }
-      // No localStorage usage anymore
-
-      // Navigate to dashboard or protected route
-      navigate('/userDetails'); // adjust the route as per your app
     }
   } catch (error) {
     console.error('Login error:', error);
