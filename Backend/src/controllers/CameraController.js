@@ -2,6 +2,7 @@ import { spawn } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import { EmotionSession, EmotionData, FaceStatistics } from '../models/Emotion.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -105,19 +106,37 @@ export const stopCamera = async (req, res) => {
       });
     }
 
+    console.log('🛑 Stopping camera...');
+    
     // Kill the process
     emotionDetectionProcess.kill('SIGTERM');
     
-    // Wait for process to exit
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Wait for C++ to finish writing files (increased to 3 seconds)
+    console.log('⏳ Waiting for files to be written...');
+    await new Promise(resolve => setTimeout(resolve, 3000));
 
-    res.status(200).json({
-      message: "Camera stopped successfully",
-      status: "stopped"
-    });
+    // Save to database and get session data
+    console.log('💾 Saving to database...');
+    const sessionData = await saveCameraSessionToDatabase();
+
+    if (sessionData) {
+      console.log('✅ Session data:', sessionData);
+      res.status(200).json({
+        message: "Camera stopped successfully",
+        status: "stopped",
+        sessionData: sessionData
+      });
+    } else {
+      console.warn('⚠️ No session data returned');
+      res.status(200).json({
+        message: "Camera stopped successfully",
+        status: "stopped",
+        sessionData: null
+      });
+    }
 
   } catch (error) {
-    console.error('Error stopping camera:', error);
+    console.error('❌ Error stopping camera:', error);
     res.status(500).json({ 
       message: "Failed to stop camera", 
       error: error.message 
@@ -329,5 +348,188 @@ export const getEmotionLogs = async (req, res) => {
       message: "Failed to get emotion logs", 
       error: error.message 
     });
+  }
+};
+
+// Save camera session to database
+const saveCameraSessionToDatabase = async () => {
+  try {
+    const emotionStatPath = getEmotionStatPath();
+    const logsPath = path.join(emotionStatPath, 'face_logs');
+    
+    if (!fs.existsSync(logsPath)) {
+      console.log('⚠️ No face_logs directory');
+      return null;
+    }
+
+    // Find latest camera session
+    const sessionDirs = fs.readdirSync(logsPath)
+      .filter(file => {
+        const fullPath = path.join(logsPath, file);
+        return fs.statSync(fullPath).isDirectory() && file.startsWith('Camera');
+      })
+      .map(dir => ({
+        name: dir,
+        time: fs.statSync(path.join(logsPath, dir)).mtime
+      }))
+      .sort((a, b) => b.time - a.time);
+
+    if (sessionDirs.length === 0) {
+      console.log('⚠️ No camera sessions found');
+      return null;
+    }
+
+    const latestSession = sessionDirs[0].name;
+    const sessionPath = path.join(logsPath, latestSession);
+    
+    console.log('✅ Processing session:', latestSession);
+
+    // Create session in database
+    const session = await EmotionSession.create({
+      sessionName: latestSession,
+      sourceType: 'camera',
+      sourceId: 'Camera_0',
+      startTime: new Date(),
+      endTime: new Date(),
+      totalFaces: 0
+    });
+
+    console.log('💾 Session created in DB:', session._id);
+
+    // Get face directories
+    const faceDirectories = fs.readdirSync(sessionPath)
+      .filter(file => {
+        const fullPath = path.join(sessionPath, file);
+        return fs.statSync(fullPath).isDirectory();
+      })
+      .sort();
+
+    console.log('👤 Found faces:', faceDirectories);
+
+    const emotionsData = [];
+
+    for (const faceDir of faceDirectories) {
+      const csvPath = path.join(sessionPath, faceDir, 'emotions.csv');
+      
+      if (!fs.existsSync(csvPath)) {
+        console.log(`⚠️ No CSV for ${faceDir}`);
+        continue;
+      }
+
+      const csvContent = fs.readFileSync(csvPath, 'utf-8');
+      const lines = csvContent.split('\n').filter(line => line.trim());
+      
+      if (lines.length <= 1) {
+        console.log(`⚠️ Empty CSV for ${faceDir}`);
+        continue;
+      }
+
+      console.log(`📄 Processing ${faceDir}: ${lines.length - 1} frames`);
+
+      // Calculate averages (only 5 emotions from CSV)
+      const emotionTotals = { happy: 0, sad: 0, surprise: 0, angry: 0, disgust: 0 };
+      let frameCount = 0;
+      const emotionDataRecords = [];
+      
+      // CSV format: frame,Happy,Sad,Surprise,Angry,Disgust
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',').map(v => v.trim());
+        
+        if (values.length >= 6) {
+          // values[0] = frame number, values[1-5] = emotions
+          const frameEmotions = {
+            happy: parseFloat(values[1]) || 0,
+            sad: parseFloat(values[2]) || 0,
+            surprise: parseFloat(values[3]) || 0,
+            angry: parseFloat(values[4]) || 0,
+            disgust: parseFloat(values[5]) || 0
+          };
+          
+          // Sum for average
+          emotionTotals.happy += frameEmotions.happy;
+          emotionTotals.sad += frameEmotions.sad;
+          emotionTotals.surprise += frameEmotions.surprise;
+          emotionTotals.angry += frameEmotions.angry;
+          emotionTotals.disgust += frameEmotions.disgust;
+          frameCount++;
+          
+          // Prepare frame data for bulk insert
+          const frameNumber = parseInt(values[0]) || i;
+          emotionDataRecords.push({
+            sessionId: session._id,
+            faceId: faceDir,
+            emotions: frameEmotions,
+            frameNumber: frameNumber,
+            timestamp: new Date()
+          });
+        }
+      }
+
+      if (frameCount > 0) {
+        // Calculate averages
+        const avgEmotions = {
+          happy: emotionTotals.happy / frameCount,
+          sad: emotionTotals.sad / frameCount,
+          surprise: emotionTotals.surprise / frameCount,
+          angry: emotionTotals.angry / frameCount,
+          disgust: emotionTotals.disgust / frameCount
+        };
+
+        // Get face image
+        const firstFramePath = path.join(sessionPath, faceDir, 'first_frame.jpg');
+        let faceImageUrl = null;
+        if (fs.existsSync(firstFramePath)) {
+          faceImageUrl = `/face_logs/${latestSession}/${faceDir}/first_frame.jpg`;
+        }
+
+        const idMatch = faceDir.match(/ID(\d+)/);
+        const faceId = idMatch ? parseInt(idMatch[1]) : 0;
+
+        emotionsData.push({
+          id: faceId,
+          faceId: faceDir,
+          faceImage: faceImageUrl,
+          numFrames: frameCount,
+          ...avgEmotions
+        });
+
+        // Save all emotion data (bulk insert)
+        if (emotionDataRecords.length > 0) {
+          await EmotionData.insertMany(emotionDataRecords);
+          console.log(`💾 Saved ${emotionDataRecords.length} records for ${faceDir}`);
+        }
+
+        // Save face statistics
+        const dominantEmotion = Object.entries(avgEmotions)
+          .reduce((max, [key, value]) => value > max.value ? { name: key, value } : max, 
+                  { name: 'happy', value: 0 });
+
+        await FaceStatistics.create({
+          sessionId: session._id,
+          faceId: faceDir,
+          totalFrames: frameCount,
+          averageEmotions: avgEmotions,
+          dominantEmotion: dominantEmotion.name
+        });
+      }
+    }
+
+    // Update session with totals
+    session.totalFaces = emotionsData.length;
+    await session.save();
+
+    console.log(`✅ Session saved: ${emotionsData.length} faces`);
+
+    return {
+      sessionId: session._id,
+      totalFaces: emotionsData.length,
+      isVideo: true,
+      emotions: emotionsData,
+      sessionName: latestSession
+    };
+
+  } catch (error) {
+    console.error('❌ Error saving session:', error);
+    return null;
   }
 };

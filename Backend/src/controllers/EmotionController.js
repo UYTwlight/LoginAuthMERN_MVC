@@ -179,17 +179,38 @@ export const processEmotionDetection = async (req, res) => {
 
                     // Parse CSV
                     const emotions = [];
+                    const sessionPath = path.join(faceLogsPath, latestSession);
+                    
                     for (let i = 1; i < lines.length; i++) {
                         const parts = lines[i].split(',');
                         if (parts.length >= 7) {
+                            const faceId = `ID${parseInt(parts[0])}`;
+                            const firstFramePath = path.join(sessionPath, faceId, 'first_frame.jpg');
+                            
+                            // Check if face image exists
+                            let faceImageUrl = null;
+                            if (fs.existsSync(firstFramePath)) {
+                                // Create URL path for serving static files
+                                faceImageUrl = `/face_logs/${latestSession}/${faceId}/first_frame.jpg`;
+                            }
+                            
+                            // Parse and validate emotion values
+                            const happy = parseFloat(parts[1]) || 0;
+                            const sad = parseFloat(parts[2]) || 0;
+                            const surprise = parseFloat(parts[3]) || 0;
+                            const angry = parseFloat(parts[4]) || 0;
+                            const disgust = parseFloat(parts[5]) || 0;
+                            
                             emotions.push({
                                 id: parseInt(parts[0]),
-                                happy: parseFloat(parts[1]),
-                                sad: parseFloat(parts[2]),
-                                surprise: parseFloat(parts[3]),
-                                angry: parseFloat(parts[4]),
-                                disgust: parseFloat(parts[5]),
-                                numFrames: parseInt(parts[6])
+                                faceId: faceId,
+                                faceImage: faceImageUrl,
+                                happy: Math.max(0, Math.min(1, happy)),
+                                sad: Math.max(0, Math.min(1, sad)),
+                                surprise: Math.max(0, Math.min(1, surprise)),
+                                angry: Math.max(0, Math.min(1, angry)),
+                                disgust: Math.max(0, Math.min(1, disgust)),
+                                numFrames: parseInt(parts[6]) || 0
                             });
                         }
                     }
