@@ -374,8 +374,18 @@ const Reports = () => {
                                         <div className="session-info">
                                             <h3 className="session-name">{session.source}</h3>
                                             <p className="session-time">
-                                                {new Date(session.startTime).toLocaleString('vi-VN')}
+                                                Bắt đầu: {new Date(session.startTime).toLocaleString('vi-VN')}
                                             </p>
+                                            {session.sourceType === 'camera' && session.endTime && (
+                                                <p className="session-time">
+                                                    Kết thúc: {new Date(session.endTime).toLocaleString('vi-VN')}
+                                                </p>
+                                            )}
+                                            {session.sourceType === 'camera' && session.endTime && (
+                                                <p className="session-duration">
+                                                    ⏱️ Thời lượng: {Math.round((new Date(session.endTime) - new Date(session.startTime)) / 1000 / 60)} phút
+                                                </p>
+                                            )}
                                             <div className="session-meta">
                                                 <span className="face-count">
                                                     👤 {session.faceCount} khuôn mặt

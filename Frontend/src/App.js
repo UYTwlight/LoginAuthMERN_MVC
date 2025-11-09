@@ -7,6 +7,7 @@ import Dashboard from './Components/Dashboard/Dashboard';
 import Reports from './Components/Reports/Reports';
 import UserManagement from './Components/UserManagement/UserManagement';
 import EmotionTest from './Components/EmotionTest/EmotionTest';
+import ModelManagement from './Components/ModelManagement/ModelManagement';
 import ProtectedRoute from './Components/Auth/ProtectedRoute';
 import SessionTimeout from './Components/Auth/SessionTimeout';
 
@@ -73,7 +74,7 @@ function App() {
         <Route path="/model" element={
           <ProtectedRoute requiredRole="manager">
             <SessionTimeout>
-              <Dashboard />
+              <ModelManagement />
             </SessionTimeout>
           </ProtectedRoute>
         } />

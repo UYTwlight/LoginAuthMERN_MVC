@@ -5,6 +5,17 @@ echo   Frontend + Backend + Camera Detection
 echo ========================================
 echo.
 
+REM Stop any existing Node.js processes to prevent port conflicts
+echo Checking for existing Node.js processes...
+taskkill /F /IM node.exe 2>nul
+if %errorlevel%==0 (
+    echo [OK] Stopped existing Node.js processes
+    timeout /t 2 /nobreak > nul
+) else (
+    echo [OK] No existing processes found
+)
+echo.
+
 REM Check if main.exe exists
 if not exist "Emotion-statistics\main.exe" (
     echo [ERROR] main.exe not found!
@@ -54,11 +65,8 @@ echo 6. OpenCV window will appear
 echo 7. Click "Dung" to stop
 echo.
 
-REM Open browser
-start http://localhost:3000
-
 echo.
 echo System is running!
-echo Browser opened at http://localhost:3000
+echo React will automatically open the browser at http://localhost:3000
 echo Close this window or press Ctrl+C to exit.
 echo.

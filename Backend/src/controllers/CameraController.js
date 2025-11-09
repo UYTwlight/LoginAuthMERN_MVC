@@ -1,6 +1,7 @@
 import { spawn } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,10 +26,28 @@ export const startCamera = async (req, res) => {
     }
 
     // Get model path and camera ID from request (optional)
-    const modelPath = req.body.modelPath || 'MobileNet_custom.onnx';
+    // If not provided, read from config file
+    let modelPath = req.body.modelPath;
     const cameraId = req.body.cameraId || '0';
-
+    
     const emotionStatPath = getEmotionStatPath();
+    
+    // If model not specified, read from config
+    if (!modelPath) {
+      const configPath = path.join(emotionStatPath, 'model_config.json');
+      if (fs.existsSync(configPath)) {
+        try {
+          const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+          modelPath = config.activeModel || 'MobileNet_custom.onnx';
+        } catch (err) {
+          console.error('Error reading model config:', err);
+          modelPath = 'MobileNet_custom.onnx';
+        }
+      } else {
+        modelPath = 'MobileNet_custom.onnx';
+      }
+    }
+
     const exePath = path.join(emotionStatPath, 'main.exe');
     const opencvBinPath = path.join(emotionStatPath, 'opencv', 'build', 'x64', 'vc16', 'bin');
 

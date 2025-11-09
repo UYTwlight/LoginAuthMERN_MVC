@@ -40,8 +40,8 @@ const Login = () => {
         
         alert(`Đăng nhập thành công! Xin chào ${user?.name || 'User'}\n${sessionInfo}`);
         
-        // Navigate to dashboard
-        navigate('/'); // This will now show the dashboard since we're authenticated
+        // Navigate to dashboard camera
+        navigate('/dashboard');
       } else {
         console.log("Token Not Received");
         alert('Login failed: No access token received');

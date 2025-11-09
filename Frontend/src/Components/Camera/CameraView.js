@@ -1,11 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './CameraView.css';
-import { 
-    LineChart, Line, 
-    BarChart, Bar,
-    XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer 
-} from 'recharts';
 
 const EMOTION_COLORS = {
   Happy: '#4CAF50',
@@ -286,8 +281,6 @@ const CameraView = () => {
 
     return { lineData, barData };
   };
-
-  const chartData = getChartData();
 
   return (
     <div className="camera-view-container">
