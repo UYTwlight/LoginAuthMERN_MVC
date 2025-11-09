@@ -40,12 +40,12 @@ const Navbar = () => {
               Quản lý Camera
             </NavLink>
             
-            <NavLink to="/upload" className={({ isActive }) => isActive ? 'active' : ''}>
-              Tải ảnh/video kiểm tra
+            <NavLink to="/emotion-test" className={({ isActive }) => isActive ? 'active' : ''}>
+              Kiểm tra mô hình
             </NavLink>
             
             <NavLink to="/model" className={({ isActive }) => isActive ? 'active' : ''}>
-              Chỉnh sửa mô hình
+              Cấu hình mô hình
             </NavLink>
           </>
         )}

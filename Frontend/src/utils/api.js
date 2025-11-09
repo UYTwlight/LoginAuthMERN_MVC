@@ -1,7 +1,10 @@
 import axios from 'axios';
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001/api';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+
 const api = axios.create({
-  baseURL: 'http://localhost:3001/api',
+  baseURL: API_BASE_URL,
   withCredentials: true
 });
 
@@ -56,7 +59,7 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const response = await axios.post('http://localhost:3001/api/auth/refresh-token', {}, {
+        const response = await axios.post(`${API_URL}/api/auth/refresh-token`, {}, {
           withCredentials: true,
           headers: {
             'Content-Type': 'application/json'

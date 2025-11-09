@@ -6,6 +6,7 @@ import UserDetails from './Components/Auth/UserDetails';
 import Dashboard from './Components/Dashboard/Dashboard';
 import Reports from './Components/Reports/Reports';
 import UserManagement from './Components/UserManagement/UserManagement';
+import EmotionTest from './Components/EmotionTest/EmotionTest';
 import ProtectedRoute from './Components/Auth/ProtectedRoute';
 import SessionTimeout from './Components/Auth/SessionTimeout';
 
@@ -62,10 +63,10 @@ function App() {
             </SessionTimeout>
           </ProtectedRoute>
         } />
-        <Route path="/upload" element={
+        <Route path="/emotion-test" element={
           <ProtectedRoute requiredRole="manager">
             <SessionTimeout>
-              <Dashboard />
+              <EmotionTest />
             </SessionTimeout>
           </ProtectedRoute>
         } />

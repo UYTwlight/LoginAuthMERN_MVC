@@ -38,6 +38,12 @@
   background-color: #f8f9fa;
   cursor: pointer;
   transition: all 0.3s ease;
+  position: relative;
+}
+
+.camera-icon-badge {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
 }
 
 .camera-item:hover {
@@ -61,15 +67,37 @@
   opacity: 0.8;
 }
 
+.camera-badge {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  background-color: #4CAF50;
+  color: white;
+  font-size: 0.7rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.camera-item.selected .camera-badge {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
 /* Video Container Styles */
 .video-container {
   background: white;
   border-radius: 8px;
-  padding: 1.5rem;
+  padding: 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   height: 100%;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  position: relative;
+}
+
+.video-stream,
+.no-camera-selected {
+  padding: 1.5rem;
 }
 
 .video-stream h2 {
@@ -129,8 +157,30 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
+  padding: 2rem;
+}
+
+.no-camera-selected h3 {
+  margin-bottom: 1rem;
+  color: #2d3436;
+  font-size: 1.5rem;
+}
+
+.no-camera-selected p {
   color: #666;
   font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.no-camera-selected ul {
+  list-style-position: inside;
+  color: #555;
+}
+
+.no-camera-selected li {
+  margin: 0.5rem 0;
+  line-height: 1.6;
 }
 
 @media (max-width: 1024px) {

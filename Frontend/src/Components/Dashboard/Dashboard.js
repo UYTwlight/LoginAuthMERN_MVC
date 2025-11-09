@@ -1,20 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
+import CameraView from '../Camera/CameraView';
 import './Dashboard.css';
 
 const Dashboard = () => {
   const [selectedCamera, setSelectedCamera] = useState(null);
+  const [userRole, setUserRole] = useState('user');
 
-  // Mock camera list - replace with actual data from your backend
+  // Get user role from localStorage
+  useEffect(() => {
+    const role = localStorage.getItem('userRole');
+    if (role) {
+      setUserRole(role);
+    }
+  }, []);
+
+  // Camera list
   const cameras = [
-    { id: 1, name: 'Camera 1', location: 'Main Entrance' },
-    { id: 2, name: 'Camera 2', location: 'Hallway' },
-    { id: 3, name: 'Camera 3', location: 'Parking' },
+    { id: 'camera1', name: 'Camera 1', location: 'Webcam - Emotion Detection', type: 'local', icon: '🎭' },
+    { id: 'camera2', name: 'Camera 2', location: 'Hallway', type: 'network', icon: '📹' },
+    { id: 'camera3', name: 'Camera 3', location: 'Parking', type: 'network', icon: '📹' },
   ];
 
   return (
     <div className="dashboard-container">
-      <Navbar />
+      <Navbar userRole={userRole} />
       
       <div className="dashboard-content">
         <div className="camera-selection">
@@ -26,8 +36,12 @@ const Dashboard = () => {
                 className={`camera-item ${selectedCamera?.id === camera.id ? 'selected' : ''}`}
                 onClick={() => setSelectedCamera(camera)}
               >
+                <div className="camera-icon-badge">{camera.icon}</div>
                 <h3>{camera.name}</h3>
                 <p>{camera.location}</p>
+                {camera.type === 'local' && (
+                  <span className="camera-badge">C++ OpenCV</span>
+                )}
               </div>
             ))}
           </div>
@@ -35,26 +49,29 @@ const Dashboard = () => {
 
         <div className="video-container">
           {selectedCamera ? (
-            <div className="video-stream">
-              <h2>{selectedCamera.name} - {selectedCamera.location}</h2>
-              <div className="video-player">
-                {/* Replace this with actual video stream component */}
-                <div className="video-placeholder">
-                  <span>Live Stream</span>
-                  <p>Camera ID: {selectedCamera.id}</p>
+            selectedCamera.id === 'camera1' ? (
+              <CameraView />
+            ) : (
+              <div className="video-stream">
+                <h2>{selectedCamera.name} - {selectedCamera.location}</h2>
+                <div className="video-player">
+                  <div className="video-placeholder">
+                    <span>🚧 Tính năng đang phát triển</span>
+                    <p>Camera mạng sẽ được hỗ trợ trong phiên bản tiếp theo</p>
+                  </div>
                 </div>
               </div>
-              <div className="emotion-labels">
-                <div className="emotion-box">
-                  <span className="emotion">Happy</span>
-                  <span className="confidence">95%</span>
-                </div>
-                {/* Add more emotion boxes as needed */}
-              </div>
-            </div>
+            )
           ) : (
             <div className="no-camera-selected">
-              <p>Vui lòng chọn camera để xem luồng video trực tiếp</p>
+              <div>
+                <h3>👋 Chào mừng đến với Hệ thống Emotion Detection</h3>
+                <p>Vui lòng chọn camera từ danh sách bên trái</p>
+                <ul style={{ textAlign: 'left', marginTop: '20px' }}>
+                  <li><strong>Camera 1</strong>: Sử dụng webcam với C++ OpenCV để phát hiện cảm xúc realtime</li>
+                  <li><strong>Camera 2-3</strong>: Tính năng đang phát triển</li>
+                </ul>
+              </div>
             </div>
           )}
         </div>
