@@ -38,6 +38,6 @@ app.use("/api/emotions",emotionRoute);
 app.use("/api/models",modelRoute);
 
 app.listen(PORT, async () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
     await connectDB();
 });
