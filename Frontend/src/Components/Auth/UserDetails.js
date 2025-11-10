@@ -3,6 +3,8 @@ import styles from "./Auth.module.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+
 const UserDetails = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -10,7 +12,7 @@ const UserDetails = () => {
   const navigate = useNavigate();
 
   const fetchUserDetails = async (token) => {
-    return await axios.get("http://localhost:3001/api/auth/getUserDetails", {
+    return await axios.get(`${API_URL}/api/auth/getUserDetails`, {
       withCredentials: true, // send cookie
       headers: {
         Authorization: `Bearer ${token}`,
@@ -45,7 +47,7 @@ const UserDetails = () => {
             try {
               console.log("Access Token Expired, attempting refresh");
               const refreshRes = await axios.get(
-                "http://localhost:3001/api/auth/refresh",
+                `${API_URL}/api/auth/refresh`,
                 {
                   withCredentials: true,
                 }
@@ -82,7 +84,7 @@ const UserDetails = () => {
   const handleLogout = async () => {
     try {
       await axios.post(
-        "http://localhost:3001/api/auth/logout",
+        `${API_URL}/api/auth/logout`,
         {},
         {
           withCredentials: true,

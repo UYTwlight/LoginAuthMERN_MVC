@@ -4,6 +4,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useState } from 'react';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+
 const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -36,7 +38,7 @@ const onSubmit = async (data) => {
 
     // Register user
     const registerResponse = await axios.post(
-      'http://localhost:3001/api/auth/register',
+      `${API_URL}/api/auth/register`,
       registrationData,
       {
         withCredentials: true,
@@ -49,7 +51,7 @@ const onSubmit = async (data) => {
     if (registerResponse.status === 201 || registerResponse.status === 200) {
       // Auto-login after successful registration
       const loginResponse = await axios.post(
-        'http://localhost:3001/api/auth/login',
+        `${API_URL}/api/auth/login`,
         {
           email: data.email,
           password: data.password

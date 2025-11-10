@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './CameraView.css';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+
 const EMOTION_COLORS = {
   Happy: '#4CAF50',
   Sad: '#2196F3',
@@ -42,7 +44,7 @@ const CameraView = () => {
     try {
       const token = localStorage.getItem('accessToken');
       const response = await axios.get(
-        'http://localhost:3001/api/camera/status',
+        `${API_URL}/api/camera/status`,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -68,7 +70,7 @@ const CameraView = () => {
 
       const token = localStorage.getItem('accessToken');
       const response = await axios.post(
-        'http://localhost:3001/api/camera/start',
+        `${API_URL}/api/camera/start`,
         {
           modelPath: 'MobileNet_custom.onnx',
           cameraId: '0'
@@ -101,7 +103,7 @@ const CameraView = () => {
       const token = localStorage.getItem('accessToken');
       
       await axios.post(
-        'http://localhost:3001/api/camera/stop',
+        `${API_URL}/api/camera/stop`,
         {},
         {
           headers: {
@@ -142,7 +144,7 @@ const CameraView = () => {
         
         // Check camera status first
         const statusResponse = await axios.get(
-          'http://localhost:3001/api/camera/status',
+          `${API_URL}/api/camera/status`,
           {
             headers: {
               Authorization: `Bearer ${token}`
@@ -172,7 +174,7 @@ const CameraView = () => {
 
         // Fetch emotion data if camera is running
         const response = await axios.get(
-          'http://localhost:3001/api/camera/emotion-data',
+          `${API_URL}/api/camera/emotion-data`,
           {
             headers: {
               Authorization: `Bearer ${token}`
@@ -232,7 +234,7 @@ const CameraView = () => {
     try {
       const token = localStorage.getItem('accessToken');
       const response = await axios.get(
-        'http://localhost:3001/api/camera/logs',
+        `${API_URL}/api/camera/logs`,
         {
           headers: {
             Authorization: `Bearer ${token}`

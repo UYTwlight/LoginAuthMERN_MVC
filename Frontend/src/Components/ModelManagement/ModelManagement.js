@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './ModelManagement.css';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+
 const ModelManagement = () => {
     const [models, setModels] = useState([]);
     const [activeModel, setActiveModel] = useState('');
@@ -24,7 +26,7 @@ const ModelManagement = () => {
             setError('');
             
             const token = localStorage.getItem('accessToken');
-            const response = await axios.get('http://localhost:3001/api/models', {
+            const response = await axios.get(`${API_URL}/api/models`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 },
@@ -72,7 +74,7 @@ const ModelManagement = () => {
 
             const token = localStorage.getItem('accessToken');
             const response = await axios.post(
-                'http://localhost:3001/api/models/upload',
+                `${API_URL}/api/models/upload`,
                 formData,
                 {
                     headers: {
@@ -115,7 +117,7 @@ const ModelManagement = () => {
 
             const token = localStorage.getItem('accessToken');
             const response = await axios.post(
-                'http://localhost:3001/api/models/active',
+                `${API_URL}/api/models/active`,
                 { modelName: pendingModel },
                 {
                     headers: {
