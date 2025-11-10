@@ -1074,8 +1074,24 @@ function calculateEmotionStats(emotionData) {
         }
     });
 
-    // Timeline data (sample every N frames for performance)
-    const sampleRate = Math.max(1, Math.floor(emotionData.length / 100));
+    // Timeline data - Adaptive sampling để tránh chồng lấn
+    // Nếu ít frame (<= 50): hiển thị tất cả
+    // Nếu vừa (51-200): sample mỗi 2-4 frames
+    // Nếu nhiều (201-500): sample mỗi 5-10 frames  
+    // Nếu rất nhiều (>500): sample để có tối đa 100 điểm
+    let sampleRate;
+    const totalFrames = emotionData.length;
+    
+    if (totalFrames <= 50) {
+        sampleRate = 1; // Hiển thị tất cả
+    } else if (totalFrames <= 200) {
+        sampleRate = Math.ceil(totalFrames / 50); // ~50 điểm
+    } else if (totalFrames <= 500) {
+        sampleRate = Math.ceil(totalFrames / 80); // ~80 điểm
+    } else {
+        sampleRate = Math.ceil(totalFrames / 100); // ~100 điểm
+    }
+    
     for (let i = 0; i < emotionData.length; i += sampleRate) {
         const record = emotionData[i];
         const timelinePoint = {

@@ -189,6 +189,35 @@ const Reports = () => {
         return face.statistics.timeline;
     };
 
+    // Tính chiều cao động cho biểu đồ dựa trên số lượng điểm dữ liệu
+    const getChartHeight = () => {
+        const timelineData = prepareLineChartData();
+        if (!timelineData || timelineData.length === 0) return 300;
+        
+        const dataPoints = timelineData.length;
+        
+        // Điều chỉnh chiều cao theo số điểm dữ liệu
+        if (dataPoints <= 20) return 250;
+        if (dataPoints <= 50) return 300;
+        if (dataPoints <= 100) return 350;
+        return 400;
+    };
+
+    // Tính interval cho XAxis để tránh label bị chồng lấn
+    const getXAxisInterval = () => {
+        const timelineData = prepareLineChartData();
+        if (!timelineData || timelineData.length === 0) return 0;
+        
+        const dataPoints = timelineData.length;
+        
+        // Auto interval dựa trên số điểm
+        if (dataPoints <= 10) return 0; // Hiển thị tất cả
+        if (dataPoints <= 20) return 1; // Hiển thị mỗi 2 label
+        if (dataPoints <= 50) return Math.floor(dataPoints / 15); // ~15 labels
+        if (dataPoints <= 100) return Math.floor(dataPoints / 20); // ~20 labels
+        return Math.floor(dataPoints / 25); // ~25 labels max
+    };
+
     // Tính toán tổng quan của session
     const getSessionOverview = () => {
         if (!sessionData) return null;
@@ -415,14 +444,41 @@ const Reports = () => {
 
                         {/* Line Chart - Emotion Timeline */}
                         <div className="chart-section full-width">
-                            <h3>Biến Động Cảm Xúc Theo Thời Gian ({selectedFace})</h3>
-                            <ResponsiveContainer width="100%" height={300}>
-                                <LineChart data={prepareLineChartData()}>
+                            <h3>
+                                Biến Động Cảm Xúc Theo Thời Gian ({selectedFace})
+                                <span style={{ fontSize: '0.85em', color: '#666', marginLeft: '10px' }}>
+                                    ({prepareLineChartData().length} điểm dữ liệu)
+                                </span>
+                            </h3>
+                            <ResponsiveContainer width="100%" height={getChartHeight()}>
+                                <LineChart 
+                                    data={prepareLineChartData()}
+                                    margin={{ top: 5, right: 30, left: 20, bottom: 25 }}
+                                >
                                     <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis dataKey="frame" label={{ value: 'Frame', position: 'insideBottom', offset: -5 }} />
-                                    <YAxis label={{ value: 'Giá trị', angle: -90, position: 'insideLeft' }} />
-                                    <Tooltip />
-                                    <Legend />
+                                    <XAxis 
+                                        dataKey="frame" 
+                                        label={{ value: 'Frame Number', position: 'insideBottom', offset: -10 }}
+                                        interval={getXAxisInterval()}
+                                        angle={prepareLineChartData().length > 50 ? -45 : 0}
+                                        textAnchor={prepareLineChartData().length > 50 ? "end" : "middle"}
+                                        height={prepareLineChartData().length > 50 ? 80 : 60}
+                                        tick={{ fontSize: 12 }}
+                                    />
+                                    <YAxis 
+                                        label={{ value: 'Giá trị cảm xúc (0-1)', angle: -90, position: 'insideLeft' }}
+                                        domain={[0, 1]}
+                                        tick={{ fontSize: 12 }}
+                                    />
+                                    <Tooltip 
+                                        contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', border: '1px solid #ccc' }}
+                                        formatter={(value) => value.toFixed(4)}
+                                        labelFormatter={(label) => `Frame: ${label}`}
+                                    />
+                                    <Legend 
+                                        wrapperStyle={{ paddingTop: '10px' }}
+                                        iconType="line"
+                                    />
                                     {Object.keys(COLORS).map(emotion => (
                                         <Line 
                                             key={emotion} 
@@ -431,6 +487,8 @@ const Reports = () => {
                                             stroke={COLORS[emotion]} 
                                             name={EMOTION_LABELS[emotion]}
                                             strokeWidth={2}
+                                            dot={prepareLineChartData().length <= 20}
+                                            activeDot={{ r: 6 }}
                                         />
                                     ))}
                                 </LineChart>
