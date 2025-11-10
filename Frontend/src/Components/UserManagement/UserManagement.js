@@ -89,7 +89,7 @@ const UserManagement = () => {
     try {
       if (editingUser) {
         // Update user
-        await api.patch(`/auth/users/${editingUser._id}`, {
+        await api.patch(`/auth/users/${editingUser._id}/role`, {
           role: formData.role
         });
         alert('Cập nhật người dùng thành công!');
