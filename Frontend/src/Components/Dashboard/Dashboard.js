@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Navbar from './Navbar';
 import CameraView from '../Camera/CameraView';
 import './Dashboard.css';
@@ -6,6 +7,7 @@ import './Dashboard.css';
 const Dashboard = () => {
   const [selectedCamera, setSelectedCamera] = useState(null);
   const [userRole, setUserRole] = useState('user');
+  const [searchParams] = useSearchParams();
 
   // Get user role from localStorage
   useEffect(() => {
@@ -14,6 +16,18 @@ const Dashboard = () => {
       setUserRole(role);
     }
   }, []);
+
+  // Auto-select first camera if tab=camera in URL
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'camera' && !selectedCamera) {
+      // Auto-select first camera
+      const cameras = [
+        { id: 'camera1', name: 'Camera 1', location: 'Webcam - Emotion Detection', type: 'local', icon: '🎭' },
+      ];
+      setSelectedCamera(cameras[0]);
+    }
+  }, [searchParams, selectedCamera]);
 
   // Camera list
   const cameras = [

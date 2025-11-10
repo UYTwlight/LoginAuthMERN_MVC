@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Home from './Components/Home';
 import Login from './Components/Auth/Login';
 import Register from './Components/Auth/Register';
@@ -21,6 +21,13 @@ function App() {
 
         {/* Protected routes - accessible by all authenticated users */}
         <Route path="/" element={
+          <ProtectedRoute>
+            <SessionTimeout>
+              <Navigate to="/dashboard?tab=camera" replace />
+            </SessionTimeout>
+          </ProtectedRoute>
+        } />
+        <Route path="/home" element={
           <ProtectedRoute>
             <SessionTimeout>
               <Home />

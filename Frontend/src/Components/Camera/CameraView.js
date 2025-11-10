@@ -139,6 +139,38 @@ const CameraView = () => {
     intervalRef.current = setInterval(async () => {
       try {
         const token = localStorage.getItem('accessToken');
+        
+        // Check camera status first
+        const statusResponse = await axios.get(
+          'http://localhost:3001/api/camera/status',
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            },
+            withCredentials: true
+          }
+        );
+
+        // If camera stopped externally (e.g., window closed), update UI
+        if (!statusResponse.data.isRunning) {
+          console.log('Camera stopped externally, updating UI...');
+          setIsRunning(prevState => {
+            if (prevState) {
+              // Only do cleanup if we were running
+              stopPolling();
+              stopLogsPolling();
+              setEmotionData([]);
+              // Load final logs
+              setTimeout(() => {
+                loadLogs();
+              }, 1000);
+            }
+            return false;
+          });
+          return;
+        }
+
+        // Fetch emotion data if camera is running
         const response = await axios.get(
           'http://localhost:3001/api/camera/emotion-data',
           {
@@ -154,6 +186,13 @@ const CameraView = () => {
         }
       } catch (err) {
         console.error('Error fetching emotion data:', err);
+        // If error 404 or connection refused, camera might have stopped
+        if (err.response?.status === 404 || err.code === 'ECONNREFUSED') {
+          setIsRunning(false);
+          stopPolling();
+          stopLogsPolling();
+          setEmotionData([]);
+        }
       }
     }, 1000);
   };
@@ -305,12 +344,6 @@ const CameraView = () => {
                 {loading ? 'Đang dừng...' : '⏹ Dừng'}
               </button>
             )}
-            <button 
-              onClick={loadLogs}
-              className="btn-logs"
-            >
-              📊 Xem Logs
-            </button>
           </div>
         </div>
       </div>
