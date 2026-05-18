@@ -1,60 +1,60 @@
 # LoginAuthMERN_MVC - Camera Emotion Detection System
 
-Hệ thống phát hiện và phân tích cảm xúc từ camera sử dụng MERN Stack (MongoDB, Express, React, Node.js) và C++ OpenCV.
+A system for detecting and analyzing emotions from camera using MERN Stack (MongoDB, Express, React, Node.js) and C++ OpenCV.
 
-## 📋 Yêu Cầu Hệ Thống
+## 📋 System Requirements
 
 - **Node.js**: >= 16.x
 - **npm**: >= 8.x
-- **MongoDB**: >= 5.x (hoặc MongoDB Atlas)
-- **Visual Studio 2019 hoặc 2022**: Community/Professional/Enterprise
-- **OpenCV**: 4.10.0 (đã có sẵn trong `Emotion-statistics/opencv/`)
+- **MongoDB**: >= 5.x (or MongoDB Atlas)
+- **Visual Studio 2019 or 2022**: Community/Professional/Enterprise
+- **OpenCV**: 4.10.0 (already included in `Emotion-statistics/opencv/`)
 - **Windows**: 10/11 (64-bit)
 
 ---
 
-## 🛠️ Cài Đặt Visual Studio
+## 🛠️ Visual Studio Installation
 
-### Bước 1: Tải Visual Studio
-1. Truy cập: https://visualstudio.microsoft.com/downloads/
-2. Tải **Visual Studio 2022 Community** (miễn phí) hoặc phiên bản cao hơn
+### Step 1: Download Visual Studio
+1. Go to: https://visualstudio.microsoft.com/downloads/
+2. Download **Visual Studio 2022 Community** (free) or a higher edition
 
-### Bước 2: Cài Đặt Workloads
-Trong quá trình cài đặt, chọn các workload sau:
+### Step 2: Install Workloads
+During installation, select the following workloads:
 
 ✅ **Desktop development with C++**
-   - MSVC v142 hoặc v143 (C++ build tools)
-   - Windows 10 SDK hoặc Windows 11 SDK
+   - MSVC v142 or v143 (C++ build tools)
+   - Windows 10 SDK or Windows 11 SDK
    - C++ CMake tools for Windows
    - C++ ATL for latest build tools
 
-### Bước 3: Kiểm Tra Cài Đặt
-Sau khi cài đặt xong:
+### Step 3: Verify Installation
+After installation is complete:
 ```powershell
-# Kiểm tra cl.exe (C++ compiler) đã có trong PATH
+# Check if cl.exe (C++ compiler) is in PATH
 cl.exe
-# Nếu không có, build_main.bat sẽ tự động tìm Visual Studio
+# If not found, build_main.bat will automatically locate Visual Studio
 ```
 
-### Bước 4: Build C++ Emotion Detection
+### Step 4: Build C++ Emotion Detection
 ```powershell
 cd Emotion-statistics
 .\build_main.bat
 ```
 
-**Script sẽ tự động:**
-- Tìm Visual Studio bằng `vswhere.exe`
+**The script will automatically:**
+- Locate Visual Studio using `vswhere.exe`
 - Load Developer Command Prompt
-- Compile `main.cpp` với OpenCV
-- Tạo `main.exe`
+- Compile `main.cpp` with OpenCV
+- Generate `main.exe`
 
 ---
 
-## ⚙️ Cấu Hình Environment Variables
+## ⚙️ Environment Variables Configuration
 
 ### Backend `.env`
 
-Tạo file `.env` trong thư mục `Backend/`:
+Create a `.env` file in the `Backend/` directory:
 
 ```env
 # Database Configuration
@@ -64,7 +64,7 @@ MONGO_URL="mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<database>?
 PORT=3001
 FRONTEND_URL=http://localhost:3000
 
-# JWT Secrets (Tạo chuỗi ngẫu nhiên phức tạp)
+# JWT Secrets (Generate a complex random string)
 ACCESS_SECRET=<your-access-secret-key-here>
 REFRESH_SECRET=<your-refresh-secret-key-here>
 
@@ -73,22 +73,22 @@ API_HOST=localhost
 API_PORT=3001
 ```
 
-**Hướng dẫn:**
-1. **MONGO_URL**: 
-   - Nếu dùng MongoDB Atlas: Lấy connection string từ Atlas Dashboard
-   - Nếu dùng MongoDB local: `mongodb://localhost:27017/emotion-detection`
-   
-2. **JWT Secrets**: 
-   - Tạo chuỗi ngẫu nhiên mạnh (ít nhất 32 ký tự)
-   - Có thể dùng: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
+**Instructions:**
+1. **MONGO_URL**:
+   - If using MongoDB Atlas: Get the connection string from the Atlas Dashboard
+   - If using local MongoDB: `mongodb://localhost:27017/emotion-detection`
 
-3. **PORT**: Cổng Backend (mặc định 3001)
+2. **JWT Secrets**:
+   - Generate a strong random string (at least 32 characters)
+   - You can use: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
 
-4. **FRONTEND_URL**: URL của Frontend để cấu hình CORS
+3. **PORT**: Backend port (default 3001)
+
+4. **FRONTEND_URL**: Frontend URL for CORS configuration
 
 ### Frontend `.env`
 
-Tạo file `.env` trong thư mục `Frontend/`:
+Create a `.env` file in the `Frontend/` directory:
 
 ```env
 # API Configuration
@@ -96,29 +96,29 @@ REACT_APP_API_URL=http://localhost:3001
 REACT_APP_API_BASE_URL=http://localhost:3001/api
 ```
 
-**Hướng dẫn:**
-- `REACT_APP_API_URL`: URL đầy đủ của Backend server
-- `REACT_APP_API_BASE_URL`: Base URL cho các API endpoints
+**Instructions:**
+- `REACT_APP_API_URL`: Full URL of the Backend server
+- `REACT_APP_API_BASE_URL`: Base URL for API endpoints
 
-**Lưu ý**: Mọi biến môi trường trong React phải bắt đầu với `REACT_APP_`
+**Note**: All environment variables in React must start with `REACT_APP_`
 
 ---
 
-## 📦 Cài Đặt Dependencies
+## 📦 Installing Dependencies
 
-### 1. Cài Đặt Root Dependencies
+### 1. Install Root Dependencies
 ```powershell
-# Từ thư mục gốc
+# From the root directory
 npm install
 ```
 
-### 2. Cài Đặt Backend Dependencies
+### 2. Install Backend Dependencies
 ```powershell
 cd Backend
 npm install
 ```
 
-**Các package chính:**
+**Main packages:**
 - `express`: Web framework
 - `mongoose`: MongoDB ODM
 - `jsonwebtoken`: JWT authentication
@@ -127,51 +127,51 @@ npm install
 - `multer`: File upload
 - `dotenv`: Environment variables
 
-### 3. Cài Đặt Frontend Dependencies
+### 3. Install Frontend Dependencies
 ```powershell
 cd Frontend
 npm install
 ```
 
-**Các package chính:**
+**Main packages:**
 - `react`: UI library
 - `react-router-dom`: Routing
 - `axios`: HTTP client
 - `recharts`: Data visualization
 - `react-hook-form`: Form handling
 
-### 4. Quay Về Thư Mục Gốc
+### 4. Return to Root Directory
 ```powershell
 cd ..
 ```
 
 ---
 
-## 🚀 Chạy Ứng Dụng
+## 🚀 Running the Application
 
-### Phương Án 1: Chạy Tất Cả Cùng Lúc (Khuyến Nghị)
+### Option 1: Run Everything at Once (Recommended)
 
 ```powershell
-# Từ thư mục gốc
+# From the root directory
 .\start-all.bat
 ```
 
-**Script sẽ tự động:**
-1. Khởi động Backend server (port 3001)
-2. Khởi động Frontend development server (port 3000)
-3. Mở 2 cửa sổ terminal riêng biệt
+**The script will automatically:**
+1. Start the Backend server (port 3001)
+2. Start the Frontend development server (port 3000)
+3. Open 2 separate terminal windows
 
-**Truy cập ứng dụng:**
+**Access the application:**
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:3001/api
 
-### Phương Án 2: Chạy Từng Service
+### Option 2: Run Each Service Individually
 
 **Terminal 1 - Backend:**
 ```powershell
 cd Backend
 npm start
-# Hoặc: npm run dev (nodemon - auto restart)
+# Or: npm run dev (nodemon - auto restart)
 ```
 
 **Terminal 2 - Frontend:**
@@ -180,20 +180,20 @@ cd Frontend
 npm start
 ```
 
-### Dừng Ứng Dụng
+### Stopping the Application
 
 ```powershell
-# Từ thư mục gốc
+# From the root directory
 .\stop-all.bat
 ```
 
-Hoặc:
-- Nhấn `Ctrl + C` trong mỗi terminal
-- Đóng các cửa sổ terminal
+Or:
+- Press `Ctrl + C` in each terminal
+- Close the terminal windows
 
 ---
 
-## 📁 Cấu Trúc Thư Mục
+## 📁 Directory Structure
 
 ```
 LoginAuthMERN_MVC/
@@ -236,119 +236,119 @@ LoginAuthMERN_MVC/
 
 ---
 
-## 🎯 Workflow Sử Dụng
+## 🎯 Usage Workflow
 
-### 1. Đăng Nhập
-- Truy cập: http://localhost:3000
-- Đăng nhập với tài khoản:
-  - **Admin**: Quản lý toàn bộ hệ thống
-  - **User**: Chỉ xem reports của chính mình
+### 1. Login
+- Go to: http://localhost:3000
+- Login with an account:
+  - **Admin**: Manages the entire system
+  - **User**: Can only view their own reports
 
-### 2. Chạy Camera Detection
-1. Vào **Dashboard Camera**
-2. Chọn camera hoặc upload file
-3. Nhấn **Start** để bắt đầu phát hiện
-4. C++ app sẽ:
-   - Phát hiện khuôn mặt
-   - Phân tích cảm xúc real-time
-   - Lưu dữ liệu vào MongoDB
-   - Lưu logs vào `Emotion-statistics/face_logs/`
+### 2. Run Camera Detection
+1. Go to **Camera Dashboard**
+2. Select a camera or upload a file
+3. Click **Start** to begin detection
+4. The C++ app will:
+   - Detect faces
+   - Analyze emotions in real-time
+   - Save data to MongoDB
+   - Save logs to `Emotion-statistics/face_logs/`
 
-### 3. Xem Báo Cáo
-1. Vào **Báo cáo tổng quan**
-2. Chọn session muốn xem
-3. Phân tích:
-   - Biểu đồ tròn: Phân bố cảm xúc
-   - Biểu đồ cột: So sánh khuôn mặt
-   - Biểu đồ đường: Timeline cảm xúc theo frame
+### 3. View Reports
+1. Go to **Overview Report**
+2. Select the session to view
+3. Analyze:
+   - Pie chart: Emotion distribution
+   - Bar chart: Face comparison
+   - Line chart: Emotion timeline per frame
 
 ---
 
-## 🔐 Phân Quyền
+## 🔐 Permissions
 
 ### Admin
-- ✅ Xem tất cả reports (mọi user)
-- ✅ Quản lý users
-- ✅ Quản lý models
-- ✅ Upload file phân tích
-- ✅ Session không giới hạn thời gian
+- ✅ View all reports (all users)
+- ✅ Manage users
+- ✅ Manage models
+- ✅ Upload files for analysis
+- ✅ Unlimited session duration
 
 ### User
-- ✅ Xem reports của chính mình
-- ✅ Chạy camera detection
-- ❌ Không xem được reports của users khác
-- ⏱️ Session timeout: 30 phút không hoạt động
+- ✅ View their own reports
+- ✅ Run camera detection
+- ❌ Cannot view other users' reports
+- ⏱️ Session timeout: 30 minutes of inactivity
 
 ---
 
 ## 🐛 Troubleshooting
 
-### Lỗi Build C++
+### C++ Build Error
 ```
 Error: Cannot find Visual Studio
 ```
-**Giải pháp:**
-- Cài đặt Visual Studio 2019/2022 với C++ workload
-- Script sẽ tự động tìm VS qua `vswhere.exe`
+**Solution:**
+- Install Visual Studio 2019/2022 with the C++ workload
+- The script will automatically find VS via `vswhere.exe`
 
-### Lỗi MongoDB Connection
+### MongoDB Connection Error
 ```
 MongoServerError: Authentication failed
 ```
-**Giải pháp:**
-- Kiểm tra `MONGO_URL` trong `Backend/.env`
-- Đảm bảo username/password đúng
-- Nếu dùng Atlas: Whitelist IP address
+**Solution:**
+- Check `MONGO_URL` in `Backend/.env`
+- Ensure username/password are correct
+- If using Atlas: Whitelist your IP address
 
-### Lỗi Port Already In Use
+### Port Already In Use Error
 ```
 Error: listen EADDRINUSE: address already in use :::3001
 ```
-**Giải pháp:**
+**Solution:**
 ```powershell
-# Tìm process đang dùng port
+# Find the process using the port
 netstat -ano | findstr :3001
 
-# Kill process (thay <PID> bằng Process ID)
+# Kill the process (replace <PID> with the Process ID)
 taskkill /PID <PID> /F
 ```
 
-### Frontend Không Kết Nối Backend
+### Frontend Cannot Connect to Backend
 ```
 Network Error
 ```
-**Giải pháp:**
-- Kiểm tra Backend đang chạy: http://localhost:3001/api
-- Kiểm tra `REACT_APP_API_URL` trong `Frontend/.env`
-- Xóa cache: `npm start` lại Frontend
+**Solution:**
+- Verify the Backend is running: http://localhost:3001/api
+- Check `REACT_APP_API_URL` in `Frontend/.env`
+- Clear cache: restart Frontend with `npm start`
 
-### C++ App Không Gửi Data Lên API
-**Giải pháp:**
-- Kiểm tra Backend đang chạy
-- Xem console log của C++ app
-- Kiểm tra `API_HOST` và `API_PORT` trong main.cpp
+### C++ App Not Sending Data to API
+**Solution:**
+- Verify the Backend is running
+- Check the C++ app's console log
+- Check `API_HOST` and `API_PORT` in main.cpp
 
 ---
 
-## 📝 Scripts Có Sẵn
+## 📝 Available Scripts
 
 ### Root Level
-- `npm start`: Chạy cả Backend và Frontend
-- `.\start-all.bat`: Chạy tất cả services (Windows)
-- `.\stop-all.bat`: Dừng tất cả services (Windows)
+- `npm start`: Run both Backend and Frontend
+- `.\start-all.bat`: Start all services (Windows)
+- `.\stop-all.bat`: Stop all services (Windows)
 
 ### Backend
-- `npm start`: Chạy production mode
-- `npm run dev`: Chạy development mode (nodemon)
+- `npm start`: Run in production mode
+- `npm run dev`: Run in development mode (nodemon)
 
 ### Frontend
-- `npm start`: Chạy development server
-- `npm run build`: Build production
-- `npm test`: Chạy tests
+- `npm start`: Run development server
+- `npm run build`: Build for production
+- `npm test`: Run tests
 
 ### Emotion-statistics
-- `.\build_main.bat`: Build C++ app
-- `.\run_main.bat`: Chạy C++ app với model mặc định
+- `.\build_main.bat`: Build the C++ app
+- `.\run_main.bat`: Run the C++ app with the default model
 
 ---
 
@@ -360,7 +360,7 @@ git clone https://github.com/UYTwlight/LoginAuthMERN_MVC.git
 cd LoginAuthMERN_MVC
 ```
 
-### Tạo Branch Mới
+### Create a New Branch
 ```bash
 git checkout -b feature/your-feature-name
 ```
@@ -376,10 +376,10 @@ git push origin feature/your-feature-name
 
 ## 📞 Support
 
-Nếu gặp vấn đề, hãy:
-1. Kiểm tra phần **Troubleshooting** ở trên
-2. Xem logs trong console (Backend/Frontend/C++)
-3. Tạo issue trên GitHub repository
+If you encounter any issues:
+1. Check the **Troubleshooting** section above
+2. Review logs in the console (Backend/Frontend/C++)
+3. Create an issue on the GitHub repository
 
 ---
 
@@ -394,4 +394,4 @@ Nếu gặp vấn đề, hãy:
 
 ---
 
-**Cập nhật lần cuối:** November 10, 2025
+**Last updated:** November 10, 2025
